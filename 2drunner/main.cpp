@@ -4,35 +4,61 @@
 
 int main()
 {
-    const int window_height{512};
-    const int window_width{380};
+    const int window_width{512*2};
+    const int window_height{380*2};
 
-    const int height{80};
-    const int width{50};    
+    InitWindow(window_width, window_height, "RunnerGame");
+
     int velocity{0};
-    int posY{window_height-height};
+
+    //acceleration due to gravity pixels/frame / frame
+    const int gravity{1};
+    bool isInAir{false};
+    const int jumpVel{-20};
+
+    Texture2D scarfy = LoadTexture("textures/scarfy.png");
+    Rectangle scarfyRec;
+    scarfyRec.height = scarfy.height;
+    scarfyRec.width = scarfy.width/6;
+    scarfyRec.x = 0;
+    scarfyRec.y = 0;
+    Vector2 scarfyPos;
+    scarfyPos.x = window_width/2 - scarfyRec.width/2;
+    scarfyPos.y = window_height - scarfyRec.height;
 
     SetTargetFPS(60);
-    InitWindow(window_width, window_height, "RunnerGame");
 
     while(!WindowShouldClose())
     {   
-        DrawRectangle(window_width/2, posY, width, height, BLUE);
-        if(IsKeyPressed(KEY_SPACE))
-        {
-            velocity -= posY;
-        }
-        posY += velocity;
-
-        
-        
-        
-
         BeginDrawing();
         ClearBackground(WHITE);
+
+        if(scarfyPos.y >= window_height-scarfyRec.height)
+        {
+            //rectangle is on the ground
+            velocity = 0;
+            isInAir = false;
+        }
+        else
+        {
+            // rectange is in the air
+            velocity += gravity;
+            isInAir=true;
+        }
+        
+        if(IsKeyPressed(KEY_SPACE) && !isInAir)
+        {
+            velocity += jumpVel;
+        }
+        
+        scarfyPos.y += velocity;
+
+        DrawTextureRec(scarfy, scarfyRec, scarfyPos, WHITE);
+        
         EndDrawing();
 
     }
-
+    UnloadTexture(scarfy);
+    CloseWindow();
 
 }
